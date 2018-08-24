@@ -5,7 +5,7 @@ namespace Timekeeper
 {
     class Core
     {
-        public static void ShowNotification(string msg) => ScreenMessages.PostScreenMessage(msg);
+        public static void ShowNotification(string msg) => ScreenMessages.PostScreenMessage(msg, 5);
 
         public static string GetString(ConfigNode n, string key, string defaultValue = null) => n.HasValue(key) ? n.GetValue(key) : defaultValue;
 
