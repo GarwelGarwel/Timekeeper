@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Timekeeper
+﻿namespace Timekeeper
 {
     class TimekeeperSettings : GameParameters.CustomParameterNode
     {
@@ -15,7 +10,7 @@ namespace Timekeeper
         public override bool HasPresets => false;
 
         [GameParameters.CustomParameterUI("Mod Enabled", toolTip = "Turn Timekeeper on/off")]
-        bool modEnabled = true;
+        public bool modEnabled = true;
 
         public static bool ModEnabled
         {
@@ -24,7 +19,7 @@ namespace Timekeeper
         }
 
         [GameParameters.CustomParameterUI("Count Orbits", toolTip = "Enable or disable sols counter")]
-        bool countOrbits = true;
+        public bool countOrbits = true;
 
         public static bool CountOrbits
         {
@@ -33,7 +28,7 @@ namespace Timekeeper
         }
 
         [GameParameters.CustomParameterUI("Count Sols", toolTip = "Enable or disable sols counter")]
-        bool countSols = true;
+        public bool countSols = true;
 
         public static bool CountSols
         {
@@ -42,7 +37,7 @@ namespace Timekeeper
         }
 
         [GameParameters.CustomParameterUI("Zero-based Counters", toolTip = "Start counting from orbit/sol 0 instead of 1")]
-        bool zeroCounters = false;
+        public bool zeroCounters = false;
 
         public static bool ZeroCounters
         {
