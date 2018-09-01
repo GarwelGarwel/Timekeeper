@@ -47,7 +47,7 @@ namespace Timekeeper
         /// <summary>
         /// Current <see cref="LogLevel"/>: either Debug or Important
         /// </summary>
-        public static LogLevel Level => LogLevel.Debug;
+        public static LogLevel Level => TimekeeperSettings.DebugMode ? LogLevel.Debug : LogLevel.Important;
 
         /// <summary>
         /// Write into output_log.txt

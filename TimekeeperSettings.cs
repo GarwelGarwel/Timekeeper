@@ -44,5 +44,14 @@
             get => HighLogic.CurrentGame.Parameters.CustomParams<TimekeeperSettings>().zeroCounters;
             set => HighLogic.CurrentGame.Parameters.CustomParams<TimekeeperSettings>().zeroCounters = value;
         }
+
+        [GameParameters.CustomParameterUI("Debug Mode", toolTip = "Log everything to help Garwel see what the mod's doing wrong")]
+        public bool debugMode = true;
+
+        public static bool DebugMode
+        {
+            get => HighLogic.CurrentGame.Parameters.CustomParams<TimekeeperSettings>().debugMode;
+            set => HighLogic.CurrentGame.Parameters.CustomParams<TimekeeperSettings>().debugMode = value;
+        }
     }
 }
