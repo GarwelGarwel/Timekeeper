@@ -43,8 +43,10 @@ namespace Timekeeper
             if (mode == CountModes.Orbits)
             {
                 count2 = (int)Math.Floor((Planetarium.GetUniversalTime() - lapTime) / Vessel.orbit.period);
-                lapTime += count2 * Vessel.orbit.period;
+                Core.Log("UT is " + Planetarium.GetUniversalTime() + "; lap time is " + lapTime + "; orbital period is " + Vessel.orbit.period + "; " + count2 + " orbits made.");
                 count += count2;
+                lapTime += count2 * Vessel.orbit.period;
+                lastPhase = OrbitPhase;
             }
             if (mode == CountModes.Sols)
             {
