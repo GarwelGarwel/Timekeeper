@@ -56,7 +56,8 @@
     <Compile Include="TimekeeperSettings.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="LICENSE" />
+    <None Include="GameData\Timekeeper\LICENSE" />
+    <None Include="GameData\Timekeeper\Timekeeper.version" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
