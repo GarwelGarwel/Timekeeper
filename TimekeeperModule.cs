@@ -8,10 +8,13 @@ namespace Timekeeper
         CountModes mode;
 
         int count;
-        double startPhase, lastPhase;
-        double lapTime;
+        //double startPhase, lastPhase;
+        double phase;
+        double time;
         double solLength;
         bool paused = false;
+
+        public override Activation GetActivation() => Activation.FlightScene | Activation.LoadedVessels;
 
         protected override void OnLoad(ConfigNode node)
         {
@@ -22,9 +25,9 @@ namespace Timekeeper
                 mode = CountModes.None;
                 return;
             }
-            lapTime = Core.GetDouble(node, "lapTime");
+            time = Core.GetDouble(node, "time");
             count = Core.GetInt(node, "count");
-            if (mode == CountModes.Orbits) startPhase = Core.GetDouble(node, "startPhase");
+            if (mode == CountModes.Orbits) phase = Core.GetDouble(node, "phase");
         }
 
         protected override void OnSave(ConfigNode node)
@@ -32,8 +35,8 @@ namespace Timekeeper
             if ((mode == CountModes.None) || !TimekeeperSettings.ModEnabled) return;
             node.AddValue("mode", mode.ToString());
             node.AddValue("count", count);
-            node.AddValue("lapTime", lapTime);
-            if (mode == CountModes.Orbits) node.AddValue("startPhase", startPhase);
+            node.AddValue("time", time);
+            if (mode == CountModes.Orbits) node.AddValue("phase", phase);
         }
 
         protected override void OnStart()
@@ -42,17 +45,22 @@ namespace Timekeeper
             int count2 = 0;
             if (mode == CountModes.Orbits)
             {
-                count2 = (int)Math.Floor((Planetarium.GetUniversalTime() - lapTime) / Vessel.orbit.period);
-                Core.Log("UT is " + Planetarium.GetUniversalTime() + "; lap time is " + lapTime + "; orbital period is " + Vessel.orbit.period + "; " + count2 + " orbits made.");
+                count2 = (int)Math.Floor((Planetarium.GetUniversalTime() - time) / Vessel.orbit.period);
+                Core.Log("UT is " + Planetarium.GetUniversalTime() + "; lap time is " + time + "; orbital period is " + Vessel.orbit.period + "; " + count2 + " orbits made.");
                 count += count2;
-                lapTime += count2 * Vessel.orbit.period;
-                lastPhase = OrbitPhase;
+                time += count2 * Vessel.orbit.period;
+                phase += (Planetarium.GetUniversalTime() - time) / Vessel.orbit.period * 360;
+                if (phase > 360)
+                {
+                    count++;
+                    phase -= 360;
+                }
             }
             if (mode == CountModes.Sols)
             {
                 CalculateSolLength();
-                count2 = (int)Math.Floor((Planetarium.GetUniversalTime() - lapTime) / solLength);
-                lapTime += count2 * solLength;
+                count2 = (int)Math.Floor((Planetarium.GetUniversalTime() - time) / solLength);
+                time += count2 * solLength;
                 count += count2;
             }
             if ((mode != CountModes.Orbits) && (Vessel.situation == Vessel.Situations.ORBITING)) OrbitsStart();
@@ -66,35 +74,41 @@ namespace Timekeeper
         /// <summary>
         /// This formula is based on "absolute phase angle" by HetaruSun. It is a sum of Longitude of Ascending Node, Argument of Periapsis and True Anomaly. It is not affected by changes of orbit parameters (Pe, Ap, AN etc.)
         /// </summary>
-        double OrbitPhase => (Vessel.orbit.LAN + (Vessel.orbit.argumentOfPeriapsis + Vessel.orbit.trueAnomaly * 180 / Math.PI) * (Vessel.orbit.inclination < 90 ? 1 : -1)) % 360;
+        //double OrbitPhase => (Vessel.orbit.LAN + (Vessel.orbit.argumentOfPeriapsis + Vessel.orbit.trueAnomaly * 180 / Math.PI) * (Vessel.orbit.inclination < 90 ? 1 : -1)) % 360;
 
         ScreenMessage m = new ScreenMessage("", 1, ScreenMessageStyle.UPPER_LEFT);
 
         void FixedUpdate()
         {
-            if (paused || !Vessel.loaded || !TimekeeperSettings.ModEnabled) return;
-            double time = Planetarium.GetUniversalTime(), elapsed = time - lapTime;
+            if (paused || !TimekeeperSettings.ModEnabled) return;
+            double now = Planetarium.GetUniversalTime(), interval = now - time;
             switch (mode)
             {
                 case CountModes.Orbits:
-                    int k = Vessel.orbit.inclination < 90 ? 1 : -1;
-                    if ((OrbitPhase * k >= startPhase * k) && (startPhase * k > lastPhase * k))
+                    //int k = Vessel.orbit.inclination < 90 ? 1 : -1;
+                    //if ((OrbitPhase * k >= startPhase * k) && (startPhase * k > lastPhase * k))
+                    double inc = interval / Vessel.orbit.period * 360;
+                    phase += inc;
+                    time = now;
+                    if (phase >= 360)
                     {
                         count++;
-                        lapTime = Planetarium.GetUniversalTime();
-                        Core.Log(Vessel.vesselName + " has passed " + count + " orbits. Current phase: " + OrbitPhase.ToString("F2") + "; start phase: " + startPhase.ToString("F2") + "; last phase: " + lastPhase.ToString("F2") + "; k = " + k);
+                        phase -= 360;
+                        //time += interval * (360 - phase) / inc;
+                        Core.Log(Vessel.name + " has passed " + count + " orbits. Last interval is " + interval.ToString("F3") + " s, phase " + phase + " + " + inc);
+                        //Core.Log(Vessel.vesselName + " has passed " + count + " orbits. Current phase: " + OrbitPhase.ToString("F2") + "; start phase: " + startPhase.ToString("F2") + "; last phase: " + lastPhase.ToString("F2") + "; k = " + k);
                         DisplayData();
                     }
-                    lastPhase = OrbitPhase;
-                    m.message = lastPhase.ToString("F1") + " | " + startPhase.ToString("F1");
+                    //lastPhase = OrbitPhase;
+                    m.message = phase.ToString("F1");
                     ScreenMessages.PostScreenMessage(m);
                     break;
                 case CountModes.Sols:
-                    if (elapsed >= solLength)
+                    if (interval >= solLength)
                     {
                         count++;
-                        Core.Log(Vessel.vesselName + " has completed its " + count + "th sol. Time since last sol is " + elapsed.ToString("F0") + " s; sidereal rotation period is " + Vessel.mainBody.rotationPeriod.ToString("F0") + " s; synodic day: " + solLength.ToString("F0") + " s.");
-                        lapTime += solLength;
+                        Core.Log(Vessel.vesselName + " has completed its " + count + "th sol. Time since last sol is " + interval.ToString("F0") + " s; sidereal rotation period is " + Vessel.mainBody.rotationPeriod.ToString("F0") + " s; synodic day: " + solLength.ToString("F0") + " s.");
+                        time += solLength;
                         DisplayData();
                     }
                     break;
@@ -106,10 +120,11 @@ namespace Timekeeper
             if (!TimekeeperSettings.CountOrbits) return;
             mode = CountModes.Orbits;
             count = 0;
-            lapTime = Planetarium.GetUniversalTime();
-            lastPhase = startPhase = OrbitPhase;
+            time = Planetarium.GetUniversalTime();
+            //lastPhase = startPhase = OrbitPhase;
+            phase = 0;
             paused = false;
-            Core.Log(Vessel.vesselName + " has begun orbiting at position " + startPhase);
+            Core.Log(Vessel.vesselName + " has begun orbiting.");
             DisplayData();
         }
 
@@ -120,10 +135,10 @@ namespace Timekeeper
             if (!TimekeeperSettings.CountSols) return;
             mode = CountModes.Sols;
             count = 0;
-            lapTime = Planetarium.GetUniversalTime();
+            time = Planetarium.GetUniversalTime();
             CalculateSolLength();
             paused = false;
-            Core.Log(Vessel.vesselName + " has begun counting sols at UT " + lapTime);
+            Core.Log(Vessel.vesselName + " has begun counting sols at UT " + time);
             DisplayData();
         }
 
@@ -143,7 +158,7 @@ namespace Timekeeper
         void OnVesselSituationChange(GameEvents.HostedFromToAction<Vessel, Vessel.Situations> e)
         {
             Core.Log("OnVesselSituationChange(<'" + e.host.vesselName + "', " + e.from + " -> " + e.to + ">)");
-            if (e.host != Vessel) return;
+            //if (e.host != Vessel) return;
             switch (e.to)
             {
                 case Vessel.Situations.ORBITING:
