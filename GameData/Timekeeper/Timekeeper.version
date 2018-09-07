@@ -1,0 +1,25 @@
+﻿{
+  "NAME": "Timekeeper",
+  "URL": "https://github.com/GarwelGarwel/Timekeeper/raw/master/Timekeeper.version",
+  "DOWNLOAD": "https://github.com/GarwelGarwel/Timekeeper/releases/latest",
+  "VERSION": {
+    "MAJOR": 1,
+    "MINOR": 0,
+    "PATCH": 0,
+    "BUILD": 0
+  },
+  "KSP_VERSION": {
+    "MAJOR": 1,
+    "MINOR": 4,
+    "PATCH": 5
+  },
+  "KSP_VERSION_MIN": {
+    "MAJOR": 1,
+    "MINOR": 4,
+    "PATCH": 0
+  },
+  "GITHUB": {
+    "USERNAME": "GarwelGarwel",
+    "REPOSITORY": "Timekeeper"
+  }
+}
