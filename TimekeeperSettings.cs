@@ -29,7 +29,7 @@
         public float messageDuration = 5;
         public static float MessageDuration => HighLogic.CurrentGame.Parameters.CustomParams<TimekeeperSettings>().messageDuration;
 
-        [GameParameters.CustomParameterUI("Debug Mode", toolTip = "Log everything to help Garwel see what the mod's doing wrong")]
+        [GameParameters.CustomParameterUI("Debug Mode", toolTip = "Log everything to help Garwel see what the mod's doing wrong + display current phase")]
         public bool debugMode = true;
         public static bool DebugMode => HighLogic.CurrentGame.Parameters.CustomParams<TimekeeperSettings>().debugMode;
     }
