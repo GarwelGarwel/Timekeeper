@@ -58,6 +58,10 @@
   <ItemGroup>
     <None Include="GameData\Timekeeper\LICENSE" />
     <None Include="GameData\Timekeeper\Timekeeper.version" />
+    <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GameData\Timekeeper\Timekeeper.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
