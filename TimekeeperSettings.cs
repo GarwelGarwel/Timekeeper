@@ -13,7 +13,7 @@
         public bool modEnabled = true;
         public static bool ModEnabled => HighLogic.CurrentGame.Parameters.CustomParams<TimekeeperSettings>().modEnabled;
 
-        [GameParameters.CustomParameterUI("Count Orbits", toolTip = "Enable or disable sols counter")]
+        [GameParameters.CustomParameterUI("Count Orbits", toolTip = "Enable or disable orbits counter")]
         public bool countOrbits = true;
         public static bool CountOrbits => HighLogic.CurrentGame.Parameters.CustomParams<TimekeeperSettings>().countOrbits;
 
