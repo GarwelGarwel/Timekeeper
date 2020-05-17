@@ -5,7 +5,7 @@ namespace Timekeeper
 {
     class Core
     {
-        public static void ShowNotification(string msg) => ScreenMessages.PostScreenMessage(msg, TimekeeperSettings.MessageDuration);
+        public static void ShowNotification(string msg) => ScreenMessages.PostScreenMessage(msg, TimekeeperSettings.Instance.MessageDuration);
 
         public static string GetString(ConfigNode n, string key, string defaultValue = null) => n.HasValue(key) ? n.GetValue(key) : defaultValue;
 
@@ -47,7 +47,7 @@ namespace Timekeeper
         /// <summary>
         /// Current <see cref="LogLevel"/>: either Debug or Important
         /// </summary>
-        public static LogLevel Level => TimekeeperSettings.DebugMode ? LogLevel.Debug : LogLevel.Important;
+        public static LogLevel Level => TimekeeperSettings.Instance.DebugMode ? LogLevel.Debug : LogLevel.Important;
 
         /// <summary>
         /// Write into output_log.txt
