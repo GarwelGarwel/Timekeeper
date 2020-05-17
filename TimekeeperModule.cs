@@ -4,8 +4,8 @@ namespace Timekeeper
 {
     public class TimekeeperModule : VesselModule
     {
-        enum CountModes { None, Orbits, Sols };
-        CountModes mode;
+        enum CountMode { None = 0, Orbits, Sols };
+        CountMode mode;
 
         int count;
         double time;
@@ -16,37 +16,44 @@ namespace Timekeeper
 
         protected override void OnLoad(ConfigNode node)
         {
-            if (!TimekeeperSettings.Instance.ModEnabled) return;
+            if (!TimekeeperSettings.Instance.ModEnabled)
+                return;
             Core.Log("OnLoad(" + node.CountValues + " values)");
-            if (node.HasValue("mode")) mode = (CountModes)Enum.Parse(typeof(CountModes), node.GetValue("mode"), true); else mode = CountModes.None;
-            if ((mode == CountModes.None) || ((mode == CountModes.Orbits) && !TimekeeperSettings.Instance.CountOrbits) || ((mode == CountModes.Sols) && !TimekeeperSettings.Instance.CountSols))
+            mode = node.HasValue("mode") ? (CountMode)Enum.Parse(typeof(CountMode), node.GetValue("mode"), true) : CountMode.None;
+            if ((mode == CountMode.None) || ((mode == CountMode.Orbits) && !TimekeeperSettings.Instance.CountOrbits) || ((mode == CountMode.Sols) && !TimekeeperSettings.Instance.CountSols))
             {
-                mode = CountModes.None;
+                mode = CountMode.None;
                 return;
             }
             time = Core.GetDouble(node, "time");
             count = Core.GetInt(node, "count");
-            if (mode == CountModes.Orbits) phase = Core.GetDouble(node, "phase");
+            if (mode == CountMode.Orbits)
+                phase = Core.GetDouble(node, "phase");
             else paused = Core.GetBool(node, "paused");
         }
 
         protected override void OnSave(ConfigNode node)
         {
-            if ((mode == CountModes.None) || !TimekeeperSettings.Instance.ModEnabled) return;
+            if ((mode == CountMode.None) || !TimekeeperSettings.Instance.ModEnabled)
+                return;
             Core.Log("OnSave");
             node.AddValue("mode", mode.ToString());
             node.AddValue("count", count);
             node.AddValue("time", time);
-            if (mode == CountModes.Orbits) node.AddValue("phase", phase);
-            if (paused) node.AddValue("paused", true);
+            if (mode == CountMode.Orbits)
+                node.AddValue("phase", phase);
+            if (paused)
+                node.AddValue("paused", true);
         }
 
         protected override void OnStart()
         {
-            if (!TimekeeperSettings.Instance.ModEnabled) return;
+            if (!TimekeeperSettings.Instance.ModEnabled)
+                return;
             Core.Log("TimekeeperModule.OnStart");
+
             int count2 = 0;
-            if (mode == CountModes.Orbits)
+            if (mode == CountMode.Orbits)
             {
                 count2 = (int)Math.Floor((Planetarium.GetUniversalTime() - time) / Vessel.orbit.period);
                 Core.Log("UT is " + Planetarium.GetUniversalTime() + "; last update time is " + time + "; orbital period is " + Vessel.orbit.period + "; " + count2 + " new orbits made.");
@@ -59,15 +66,21 @@ namespace Timekeeper
                 }
                 time = Planetarium.GetUniversalTime();
             }
-            if (mode == CountModes.Sols)
+
+            if (mode == CountMode.Sols)
             {
                 count2 = (int)Math.Floor((Planetarium.GetUniversalTime() - time) / Vessel.mainBody.solarDayLength);
                 Core.Log("UT is " + Planetarium.GetUniversalTime() + "; sol start time is " + time + "; solar day is " + Vessel.mainBody.solarDayLength.ToString("F1") + "; " + count2 + " sols passed.");
                 time += count2 * Vessel.mainBody.solarDayLength;
                 count += count2;
             }
-            if ((mode != CountModes.Orbits) && (Vessel.situation == Vessel.Situations.ORBITING)) OrbitsStart();
-            if ((mode != CountModes.Sols) && ((Vessel.situation == Vessel.Situations.LANDED) || (Vessel.situation == Vessel.Situations.SPLASHED))) SolsStart();
+
+            if ((mode != CountMode.Orbits) && (Vessel.situation == Vessel.Situations.ORBITING))
+                OrbitsStart();
+
+            if ((mode != CountMode.Sols) && ((Vessel.situation == Vessel.Situations.LANDED) || (Vessel.situation == Vessel.Situations.SPLASHED)))
+                SolsStart();
+
             GameEvents.onVesselSituationChange.Add(OnVesselSituationChange);
             GameEvents.onVesselSOIChanged.Add(OnVesselSOIChanged);
             DisplayData();
@@ -83,11 +96,13 @@ namespace Timekeeper
 
         void FixedUpdate()
         {
-            if (paused || !TimekeeperSettings.Instance.ModEnabled) return;
-            double now = Planetarium.GetUniversalTime(), interval = now - time;
+            if (paused || !TimekeeperSettings.Instance.ModEnabled)
+                return;
+            double now = Planetarium.GetUniversalTime();
+            double interval = now - time;
             switch (mode)
             {
-                case CountModes.Orbits:
+                case CountMode.Orbits:
                     double inc = interval / Vessel.orbit.period * 360;
                     phase += inc;
                     time = now;
@@ -104,7 +119,8 @@ namespace Timekeeper
                         ScreenMessages.PostScreenMessage(m);
                     }
                     break;
-                case CountModes.Sols:
+
+                case CountMode.Sols:
                     if (interval >= Vessel.mainBody.solarDayLength)
                     {
                         count++;
@@ -118,8 +134,9 @@ namespace Timekeeper
 
         void OrbitsStart()
         {
-            if (!TimekeeperSettings.Instance.CountOrbits) return;
-            mode = CountModes.Orbits;
+            if (!TimekeeperSettings.Instance.CountOrbits)
+                return;
+            mode = CountMode.Orbits;
             count = 0;
             time = Planetarium.GetUniversalTime();
             phase = 0;
@@ -130,8 +147,9 @@ namespace Timekeeper
 
         void SolsStart()
         {
-            if (!TimekeeperSettings.Instance.CountSols) return;
-            mode = CountModes.Sols;
+            if (!TimekeeperSettings.Instance.CountSols)
+                return;
+            mode = CountMode.Sols;
             count = 0;
             time = Planetarium.GetUniversalTime();
             paused = false;
@@ -141,7 +159,7 @@ namespace Timekeeper
 
         void StopTimekeeping()
         {
-            mode = CountModes.None;
+            mode = CountMode.None;
             count = 0;
         }
 
@@ -152,28 +170,38 @@ namespace Timekeeper
                 Core.Log("DisplayData for " + Vessel.vesselName + " while active vessel is " + FlightGlobals.ActiveVessel.vesselName);
                 return;
             }
-            if (mode == CountModes.Orbits) Core.ShowNotification("Orbit " + (count + (TimekeeperSettings.Instance.ZeroCounters ? 0 : 1)));
-            else if (mode == CountModes.Sols) Core.ShowNotification("Sol " + (count + (TimekeeperSettings.Instance.ZeroCounters ? 0 : 1)));
+            if (mode == CountMode.Orbits)
+                Core.ShowNotification("Orbit " + (count + (TimekeeperSettings.Instance.ZeroCounters ? 0 : 1)));
+            else if (mode == CountMode.Sols)
+                Core.ShowNotification("Sol " + (count + (TimekeeperSettings.Instance.ZeroCounters ? 0 : 1)));
         }
 
         void OnVesselSituationChange(GameEvents.HostedFromToAction<Vessel, Vessel.Situations> e)
         {
             Core.Log("OnVesselSituationChange(<'" + e.host.vesselName + "', " + e.from + " -> " + e.to + ">)");
-            if (e.host != Vessel) return;
+            if (e.host != Vessel)
+                return;
+
             switch (e.to)
             {
                 case Vessel.Situations.ORBITING:
-                    if (mode != CountModes.Orbits) OrbitsStart();
+                    if (mode != CountMode.Orbits)
+                        OrbitsStart();
                     break;
+
                 case Vessel.Situations.LANDED:
                 case Vessel.Situations.SPLASHED:
-                    if (paused) paused = false;
+                    if (paused)
+                        paused = false;
                     else SolsStart();
                     break;
+
                 case Vessel.Situations.FLYING:
                 case Vessel.Situations.SUB_ORBITAL:
-                    if (mode == CountModes.Sols) paused = true;
+                    if (mode == CountMode.Sols)
+                        paused = true;
                     break;
+
                 default:
                     StopTimekeeping();
                     break;

@@ -23,7 +23,7 @@
         [GameParameters.CustomParameterUI("Zero-based Counters", toolTip = "Start counting from orbit/sol 0 instead of 1")]
         public bool ZeroCounters = false;
 
-        [GameParameters.CustomFloatParameterUI("Screen Message Duration", toolTip = "# of seconds before the screen message showing number of orbits/sols disappers", displayFormat = "N0", minValue = 0, maxValue = 60)]
+        [GameParameters.CustomFloatParameterUI("Screen Message Duration", toolTip = "Number of seconds before the screen message showing number of orbits/sols disappers", displayFormat = "N0", minValue = 0, maxValue = 60)]
         public float MessageDuration = 5;
 
         [GameParameters.CustomParameterUI("Debug Mode", toolTip = "Log everything to help Garwel see what the mod's doing wrong + display current phase")]
