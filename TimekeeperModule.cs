@@ -5,12 +5,13 @@ namespace Timekeeper
     public class TimekeeperModule : VesselModule
     {
         enum CountMode { None = 0, Orbits, Sols };
-        CountMode mode;
 
+        CountMode mode;
         int count;
         double time;
         double phase;
         bool paused = false;
+        ScreenMessage m = new ScreenMessage("", 1, ScreenMessageStyle.UPPER_LEFT);
 
         public override Activation GetActivation() => Activation.FlightScene | Activation.LoadedVessels;
 
@@ -25,16 +26,16 @@ namespace Timekeeper
                 mode = CountMode.None;
                 return;
             }
-            time = Core.GetDouble(node, "time");
-            count = Core.GetInt(node, "count");
+            time = node.GetDouble("time");
+            count = node.GetInt("count");
             if (mode == CountMode.Orbits)
-                phase = Core.GetDouble(node, "phase");
-            else paused = Core.GetBool(node, "paused");
+                phase = node.GetDouble("phase");
+            else paused = node.GetBool("paused");
         }
 
         protected override void OnSave(ConfigNode node)
         {
-            if ((mode == CountMode.None) || !TimekeeperSettings.Instance.ModEnabled)
+            if (mode == CountMode.None || !TimekeeperSettings.Instance.ModEnabled)
                 return;
             Core.Log("OnSave");
             node.AddValue("mode", mode.ToString());
@@ -75,10 +76,10 @@ namespace Timekeeper
                 count += count2;
             }
 
-            if ((mode != CountMode.Orbits) && (Vessel.situation == Vessel.Situations.ORBITING))
+            if (mode != CountMode.Orbits && Vessel.situation == Vessel.Situations.ORBITING)
                 OrbitsStart();
 
-            if ((mode != CountMode.Sols) && ((Vessel.situation == Vessel.Situations.LANDED) || (Vessel.situation == Vessel.Situations.SPLASHED)))
+            if (mode != CountMode.Sols && (Vessel.situation == Vessel.Situations.LANDED || Vessel.situation == Vessel.Situations.SPLASHED))
                 SolsStart();
 
             GameEvents.onVesselSituationChange.Add(OnVesselSituationChange);
@@ -91,8 +92,6 @@ namespace Timekeeper
             GameEvents.onVesselSituationChange.Remove(OnVesselSituationChange);
             GameEvents.onVesselSOIChanged.Remove(OnVesselSOIChanged);
         }
-
-        ScreenMessage m = new ScreenMessage("", 1, ScreenMessageStyle.UPPER_LEFT);
 
         void FixedUpdate()
         {

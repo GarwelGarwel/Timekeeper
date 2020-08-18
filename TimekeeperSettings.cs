@@ -2,15 +2,6 @@
 {
     class TimekeeperSettings : GameParameters.CustomParameterNode
     {
-        public override string Section => "Timekeeper";
-        public override string DisplaySection => Section;
-        public override string Title => "Timekeeper Settings";
-        public override int SectionOrder => 1;
-        public override GameParameters.GameMode GameMode => GameParameters.GameMode.ANY;
-        public override bool HasPresets => false;
-
-        public static TimekeeperSettings Instance => HighLogic.CurrentGame.Parameters.CustomParams<TimekeeperSettings>();
-
         [GameParameters.CustomParameterUI("Mod Enabled", toolTip = "Turn Timekeeper on/off")]
         public bool ModEnabled = true;
 
@@ -28,5 +19,13 @@
 
         [GameParameters.CustomParameterUI("Debug Mode", toolTip = "Log everything to help Garwel see what the mod's doing wrong + display current phase")]
         public bool DebugMode = false;
+
+        public static TimekeeperSettings Instance => HighLogic.CurrentGame.Parameters.CustomParams<TimekeeperSettings>();
+        public override string Section => "Timekeeper";
+        public override string DisplaySection => Section;
+        public override string Title => "Timekeeper Settings";
+        public override int SectionOrder => 1;
+        public override GameParameters.GameMode GameMode => GameParameters.GameMode.ANY;
+        public override bool HasPresets => false;
     }
 }
