@@ -41,7 +41,7 @@ namespace Timekeeper
         public static void Log(string message, LogLevel messageLevel = LogLevel.Debug)
         {
             if (messageLevel <= Level)
-                Debug.Log("[Timekeeper] " + message);
+                Debug.Log($"[Timekeeper] {message}");
         }
     }
 }

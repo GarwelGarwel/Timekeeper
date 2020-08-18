@@ -19,9 +19,10 @@ namespace Timekeeper
         {
             if (!TimekeeperSettings.Instance.ModEnabled)
                 return;
-            Core.Log("OnLoad(" + node.CountValues + " values)");
+            Core.Log($"OnLoad({node.CountValues} values)");
             mode = node.HasValue("mode") ? (CountMode)Enum.Parse(typeof(CountMode), node.GetValue("mode"), true) : CountMode.None;
-            if ((mode == CountMode.None) || ((mode == CountMode.Orbits) && !TimekeeperSettings.Instance.CountOrbits) || ((mode == CountMode.Sols) && !TimekeeperSettings.Instance.CountSols))
+            if ((mode == CountMode.None) || ((mode == CountMode.Orbits) && !TimekeeperSettings.Instance.CountOrbits)
+                || ((mode == CountMode.Sols) && !TimekeeperSettings.Instance.CountSols))
             {
                 mode = CountMode.None;
                 return;
@@ -57,7 +58,7 @@ namespace Timekeeper
             if (mode == CountMode.Orbits)
             {
                 count2 = (int)Math.Floor((Planetarium.GetUniversalTime() - time) / Vessel.orbit.period);
-                Core.Log("UT is " + Planetarium.GetUniversalTime() + "; last update time is " + time + "; orbital period is " + Vessel.orbit.period + "; " + count2 + " new orbits made.");
+                Core.Log($"UT is {Planetarium.GetUniversalTime()}; last update time is {time}; orbital period is {Vessel.orbit.period}; {count2} new orbits made.");
                 count += count2;
                 phase += (Planetarium.GetUniversalTime() - time - count2 * Vessel.orbit.period) / Vessel.orbit.period * 360;
                 if (phase >= 360)
@@ -71,7 +72,7 @@ namespace Timekeeper
             if (mode == CountMode.Sols)
             {
                 count2 = (int)Math.Floor((Planetarium.GetUniversalTime() - time) / Vessel.mainBody.solarDayLength);
-                Core.Log("UT is " + Planetarium.GetUniversalTime() + "; sol start time is " + time + "; solar day is " + Vessel.mainBody.solarDayLength.ToString("F1") + "; " + count2 + " sols passed.");
+                Core.Log($"UT is {Planetarium.GetUniversalTime()}; sol start time is {time}; solar day is {Vessel.mainBody.solarDayLength:F1}; {count2} sols passed.");
                 time += count2 * Vessel.mainBody.solarDayLength;
                 count += count2;
             }
@@ -109,7 +110,7 @@ namespace Timekeeper
                     {
                         count++;
                         phase -= 360;
-                        Core.Log(Vessel.name + " has passed " + count + " orbits. Last interval is " + interval.ToString("F3") + " s, phase " + phase + " + " + inc);
+                        Core.Log($"{Vessel.name} has passed {count} orbits. Last interval is {interval:F3} s, phase {phase} + {inc}.");
                         DisplayData();
                     }
                     if (TimekeeperSettings.Instance.DebugMode)
@@ -123,7 +124,7 @@ namespace Timekeeper
                     if (interval >= Vessel.mainBody.solarDayLength)
                     {
                         count++;
-                        Core.Log(Vessel.vesselName + " has completed its " + count + "th sol. Time since last sol is " + interval.ToString("F0") + " s; solar day is " + Vessel.mainBody.solarDayLength.ToString("F0") + " s.");
+                        Core.Log($"{Vessel.vesselName} has completed its {count}th sol. Time since last sol is {interval:F0} s; solar day is {Vessel.mainBody.solarDayLength:F0} s.");
                         time += Vessel.mainBody.solarDayLength;
                         DisplayData();
                     }
